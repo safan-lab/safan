@@ -24,6 +24,9 @@ class Router
     public function checkHttpRoutes(){
         // get modules
         $modules = Safan::handler()->getModules();
+
+        $frameworkDefaultRoute = array();
+
         // get all routes
         foreach($modules as $moduleName => $modulePath){
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'router.config.php';
@@ -34,8 +37,17 @@ class Router
 
             if(file_exists($routerFile)){
                 $route = include($routerFile);
-                $this->httpRoutes = array_merge($this->httpRoutes, $route);
+                if($moduleName != 'SafanResponse')
+                    $this->httpRoutes = array_replace($this->httpRoutes, $route);
+                else
+                    $frameworkDefaultRoute = $route;
             }
+        }
+
+        // merge default route
+        foreach($frameworkDefaultRoute as $route => $routeParam){
+            if(!isset($this->httpRoutes[$route]))
+                $this->httpRoutes[$route] = $routeParam;
         }
     }
 
