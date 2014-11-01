@@ -9,11 +9,6 @@ use Safan\Safan;
 class AssetManager
 {
     /**
-     * @var array
-     */
-    private $assets = array();
-
-    /**
      * @var string
      */
     private $assetsUri = '';
@@ -36,13 +31,6 @@ class AssetManager
      */
     public function getCompressor(){
         return $this->compressor;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAssets(){
-        return implode("\n\r", $this->assets);
     }
 
     /**
@@ -86,7 +74,7 @@ class AssetManager
             if(!isset($attributes['type']))
                 $htmlAttributes .= ' type="text/css"';
 
-            $this->assets[] = '<link href="'. $assetLink .'" '. $htmlAttributes .' />';
+            return '<link href="'. $assetLink .'" '. $htmlAttributes .' />';
         }
         else if($extension == 'js'){
             $htmlAttributes = '';
@@ -97,7 +85,7 @@ class AssetManager
             if(!isset($attributes['type']))
                 $htmlAttributes .= ' type="text/javascript"';
 
-            $this->assets[] = '<script ' . $htmlAttributes . ' src="'. $assetLink .'"></script>';
+            return '<script ' . $htmlAttributes . ' src="'. $assetLink .'"></script>';
         }
         else
             throw new ParamsNotFoundException('Unknown asset type');
