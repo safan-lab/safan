@@ -32,7 +32,7 @@ class Router
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'router.config.php';
 
             // register module namespaces
-            $loader = new SplClassLoader($moduleName, $modulePath . DS . '..' . DS);
+            $loader = new SplClassLoader($moduleName, APP_BASE_PATH . DS . $modulePath . DS . '..' . DS);
             $loader->register();
 
             if(file_exists($routerFile)){
