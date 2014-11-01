@@ -1,0 +1,21 @@
+{
+    "name": "safan-lab/safan",
+    "type": "library",
+    "description": "The Safan framework library",
+    "keywords": ["framework"],
+    "homepage": "http://www.safanlab.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Harut Grigoryan",
+            "email": "support@safanlab.com"
+        },
+        {
+            "name": "Safan Lab",
+            "homepage": "http://www.safanlab.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
