@@ -24,7 +24,6 @@ class Router
     public function checkHttpRoutes(){
         // get modules
         $modules = Safan::handler()->getModules();
-        $modules = array_reverse($modules);
         // get all routes
         foreach($modules as $moduleName => $modulePath){
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'router.config.php';
