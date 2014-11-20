@@ -4,6 +4,7 @@ namespace Safan\Handler;
 
 use Safan\Assets\AssetManager;
 use Safan\Dispatcher\Dispatcher;
+use Safan\EventListener\EventListener;
 use Safan\FileStorageManager\FileStorageManager;
 use Safan\FlashMessenger\FlashMessenger;
 use Safan\GlobalData\Cookie;
@@ -102,6 +103,12 @@ class HttpHandler extends Handler
         /******************* Object manager ***************/
         $this->objectManager = $om = new ObjectManager();
 
+        /******************* Event listener ***************/
+        if(!isset($config['events']))
+            $config['events'] = array();
+        $eventListener = new EventListener($config['events']);
+        $om->setObject('eventListener', $eventListener);
+
         /******************* Dispatcher object ************/
         $dispatcher = new Dispatcher();
         $om->setObject('dispatcher', $dispatcher);
@@ -169,7 +176,12 @@ class HttpHandler extends Handler
      * @return mixed|void
      */
     protected function handlingProcess(){
+        $this->objectManager->get('eventListener')->runEvent('preCheckRoute');
         $this->objectManager->get('router')->checkHttpRoutes();
+        $this->objectManager->get('eventListener')->runEvent('postCheckRoute');
+
+        $this->objectManager->get('eventListener')->runEvent('preDispatch');
         $this->objectManager->get('dispatcher')->dispatch();
+        $this->objectManager->get('eventListener')->runEvent('postDispatch');
     }
 }

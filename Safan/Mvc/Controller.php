@@ -15,7 +15,7 @@ class Controller
     /**
      * @var string
      */
-    private $view;
+    protected $view;
 
     /**
      * Page Title
@@ -65,7 +65,7 @@ class Controller
      * @return string
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    private function getLayout(){
+    protected function getLayout(){
         if(strlen($this->layout) <= 0)
             $this->layout = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath() . DS . 'Layouts' . DS . 'main.php';
 
@@ -146,6 +146,7 @@ class Controller
      *
      */
     public function getContent(){
+        Safan::handler()->getObjectManager()->get('eventListener')->runEvent('preLoadView');
         return $this->load($this->view);
     }
 
