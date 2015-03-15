@@ -19,11 +19,23 @@ class AssetManager
     private $compressor;
 
     /**
+     * @var object
+     */
+    private $cssManager;
+
+    /**
+     * @var object
+     */
+    private $jsManager;
+
+    /**
      * @param $assetsPath
      */
     public function __construct($assetsPath){
         $this->assetsUri = Safan::handler()->baseUrl . '/' . $assetsPath;
         $this->compressor = new Compressor($assetsPath);
+        $this->cssManager = new CssManager();
+        $this->jsManager = new JsManager();
     }
 
     /**
@@ -89,5 +101,57 @@ class AssetManager
         }
         else
             throw new ParamsNotFoundException('Unknown asset type');
+    }
+
+    /**
+     * Minify files
+     *
+     * @param $assetFiles
+     * @param $assetType
+     * @return bool
+     */
+    public function minify($assetFiles, $assetType){
+        // convert and return file paths
+        $assetFiles = $this->translator($assetFiles);
+
+        if($assetType == 'css')
+            return $this->cssManager->checkCustomAssets($assetFiles);
+        elseif($assetType == 'js')
+            return $this->jsManager->checkCustomAssets($assetFiles);
+    }
+
+    /**
+     * Translate path
+     *
+     * @param $files
+     * @return array
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
+     */
+    private function translator($files){
+        // empty array for return
+        $fileArray = array();
+        // get modules
+        $modules = Safan::handler()->getModules();
+
+        foreach($files as $filePath){
+            $asset = explode(':', $filePath);
+            if(sizeof($asset) !== 2)
+                throw new FileNotFoundException('Css asset name is not correct');
+
+            $moduleName = $asset[0];
+            $filePath = $asset[1];
+
+            if(!isset($modules[$moduleName]))
+                throw new FileNotFoundException('Asset module is not define');
+
+            $fullPath = APP_BASE_PATH . DS . $modules[$moduleName] . DS . 'Resources' . DS . 'public' . DS . $filePath;
+
+            if(!file_exists($fullPath))
+                throw new FileNotFoundException('Asset file is not define');
+
+            $fileArray[] = $fullPath;
+        }
+
+        return $fileArray;
     }
 }
