@@ -84,7 +84,8 @@ class HttpHandler extends Handler
     }
 
     /**
-     *
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     public function runApplication(){
         /****************** Main Config ************************/
@@ -94,6 +95,7 @@ class HttpHandler extends Handler
         else
             throw new FileNotFoundException('Main Config file "'. $mainConfigFile .'" not found');
 
+        $this->config = $config;
         /****************** Set Debug mode *******************/
         if(isset($config['debug']) && $config['debug'] === true)
             $this->debugMode = true;
@@ -173,12 +175,42 @@ class HttpHandler extends Handler
     }
 
     /**
+     * Initialize libraries from config
+     */
+    protected function initLibraries(){
+        if(empty($this->config['init']))
+            return false;
+
+        foreach($this->config['init'] as $lib){
+            if(!isset($lib['class']) || !isset($lib['method']))
+                throw new ParamsNotFoundException('Initialization library is not correct');
+
+            if(class_exists($lib['class']))
+                $dataMapper = new $lib['class'];
+            else
+                throw new FileNotFoundException($lib['class']);
+
+            if(method_exists($dataMapper, $lib['method'])){
+                if(isset($lib['params']))
+                    $dataMapper->{$lib['method']}($lib['params']);
+                else
+                    $dataMapper->{$lib['method']()};
+            }
+            else
+                throw new ParamsNotFoundException($lib['method']);
+        }
+    }
+
+    /**
      * @return mixed|void
      */
     protected function handlingProcess(){
         $this->objectManager->get('eventListener')->runEvent('preCheckRoute');
         $this->objectManager->get('router')->checkHttpRoutes();
         $this->objectManager->get('eventListener')->runEvent('postCheckRoute');
+
+        // initialize libraries from config
+        $this->initLibraries();
 
         $this->objectManager->get('eventListener')->runEvent('preDispatch');
         $this->objectManager->get('dispatcher')->dispatch();
