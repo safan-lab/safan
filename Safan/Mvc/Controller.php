@@ -50,14 +50,30 @@ class Controller
     /**
      * @param $layout
      * @param bool $fullPath
-     * @return mixed
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     protected function setLayout($layout, $fullPath = false){
+        $layoutPaths = explode(':', $layout);
+
+        if(sizeof($layoutPaths) !== 2)
+            throw new FileNotFoundException('Layout is not correct');
+
+        $moduleName     = $layoutPaths[0];
+        $layoutFileName = $layoutPaths[1];
+
+        $modules = Safan::handler()->getModules();
+
+        if(!isset($modules[$moduleName]))
+            throw new FileNotFoundException('Layout module is not define');
+
+        $layoutFile = APP_BASE_PATH . DS . $modules[$moduleName] . DS . 'Layouts' . DS . $layoutFileName . '.php';
+
         if($fullPath === false)
             $layout = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath() . DS . 'Layouts' . $layout;
 
-        if(!file_exists($layout))
-            return Safan::handler()->getObjectManager()->get('dispatcher')->dispatchToError(404, 'Layout not found');
+        if(!file_exists($layoutFile))
+            throw new FileNotFoundException('Layout is not exist');
+
         $this->layout = $layout;
     }
 
