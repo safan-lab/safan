@@ -74,7 +74,7 @@ class Controller
         if(!file_exists($layoutFile))
             throw new FileNotFoundException('Layout is not exist');
 
-        $this->layout = $layout;
+        $this->layout = $layoutFile;
     }
 
     /**
@@ -92,7 +92,7 @@ class Controller
             if(!file_exists($this->layout))
                 throw new FileNotFoundException('Safan response path is not defined');
         }
-        
+
         return $this->layout;
     }
 
