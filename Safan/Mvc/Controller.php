@@ -92,9 +92,7 @@ class Controller
             if(!file_exists($this->layout))
                 throw new FileNotFoundException('Safan response path is not defined');
         }
-        else
-            $this->layout = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath() . DS . 'Layouts' . DS . 'main.php';
-
+        
         return $this->layout;
     }
 
