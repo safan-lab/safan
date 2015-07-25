@@ -19,6 +19,11 @@ class WidgetManager
     public $params = array();
 
     /**
+     * @var array
+     */
+    private $widgetRouting = [];
+
+    /**
      * Get config widgets list
      */
     public function __construct(){
@@ -46,21 +51,29 @@ class WidgetManager
             throw new ParamsNotFoundException($widgetName . ' Params is not exist');
 
         // load widget
-        $this->loadWidget($widget['module'], $widget['controller'], $widget['action'], $params);
+        $this->loadWidget($widgetName, $widget['module'], $widget['controller'], $widget['action'], $params);
 	}
 
-
-    public function loadWidget($module, $controller, $action, $params = array()){
+    /**
+     * @param $widgetName
+     * @param $module
+     * @param $controller
+     * @param $action
+     * @param array $params
+     * @return mixed
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
+     */
+    public function loadWidget($widgetName, $module, $controller, $action, $params = array()){
         // get all modules
         $modules = Safan::handler()->getModules();
 
         if(isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])){
-            $nameSpace               = '\\' . $module;
-            $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[$module];
+            $nameSpace  = '\\' . $module;
+            $modulePath = APP_BASE_PATH . DS . $modules[$module];
         }
         elseif(isset($modules[ucfirst(strtolower($module))]) && is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])){ // check case sensitivity
-            $nameSpace                             = '\\' . ucfirst(strtolower($module));
-            $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
+            $nameSpace  = '\\' . ucfirst(strtolower($module));
+            $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
         }
         else
             throw new ParamsNotFoundException('Widget ' . $module . ' module or path are not exist');
@@ -68,7 +81,6 @@ class WidgetManager
         // Controller Class Name
         $moduleController = ucfirst(strtolower($controller)) . 'Controller';
         $controllerFile   = $modulePath . DS . 'Controllers' . DS . $moduleController . '.php';
-        $this->currentController = $controller;
 
         if(!file_exists($controllerFile))
             throw new ParamsNotFoundException('Widget ' . $modulePath . DS . 'Controllers' . DS . $moduleController . ' controller file is not exist');
@@ -89,6 +101,28 @@ class WidgetManager
         if(!method_exists($moduleControllerObject, $actionMethod))
             throw new ParamsNotFoundException('Widget ' . $actionMethod . ' Action Method is not exists in Controller Class');
 
+        $this->setWidgetRouting([
+            'name'       => $widgetName,
+            'modulePath' => $modulePath,
+            'module'     => strtolower($module),
+            'controller' => strtolower($controller),
+            'action'     => $actionMethod,
+        ]);
+
         return $moduleControllerObject->$actionMethod($params);
+    }
+
+    /**
+     * @param $widgetRouting
+     */
+    private function setWidgetRouting($widgetRouting){
+        $this->widgetRouting = $widgetRouting;
+    }
+
+    /**
+     * @return array
+     */
+    public function getWidgetRouting(){
+        return $this->widgetRouting;
     }
 }

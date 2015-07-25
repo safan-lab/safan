@@ -3,6 +3,7 @@
 namespace Safan\Mvc;
 
 use Safan\GlobalExceptions\FileNotFoundException;
+use Safan\GlobalExceptions\ParamsNotFoundException;
 use Safan\Safan;
 
 class Controller
@@ -120,9 +121,9 @@ class Controller
      * @param $view
      */
     protected function renderPartial($view){
-        $modulePath = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
-        $contollerName = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentController();
-        $view = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($contollerName) . DS . $view . '.php';
+        $modulePath     = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
+        $controllerName = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentController();
+        $view           = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($controllerName) . DS . $view . '.php';
 
         if(!file_exists($view))
             return Safan::handler()->getObjectManager()->get('dispatcher')->dispatchToError(404, 'View file not found');
@@ -132,16 +133,18 @@ class Controller
 
     /**
      * @param $view
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
      */
     protected function renderWidget($view){
-        $modulePath    = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
-        $contollerName = $this->getWidgetName();
-        $view          = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($contollerName) . DS . $view . '.php';
+        $widgetRouting  = Safan::handler()->getObjectManager()->get('widget')->getWidgetRouting();
+        $modulePath     = $widgetRouting['modulePath'];
+        $controllerName = $widgetRouting['controller'];
+        $view           = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($controllerName) . DS . $view . '.php';
 
         if(!file_exists($view))
-            return Safan::handler()->getObjectManager()->get('dispatcher')->dispatchToError(404, 'View file not found');
+            throw new ParamsNotFoundException($widgetRouting['name'] . ' Widget view file not found');
 
-        return $this->load($view, true);
+        $this->load($view, true);
     }
 
     /**
@@ -165,7 +168,6 @@ class Controller
         }
         else
             include $file;
-
 
         return;
     }
