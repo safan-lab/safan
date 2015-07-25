@@ -45,10 +45,50 @@ class WidgetManager
         if(!isset($widget['module']) || !isset($widget['controller']) || !isset($widget['action']))
             throw new ParamsNotFoundException($widgetName . ' Params is not exist');
 
-        // get dispatcher
-        $dispatcher = Safan::handler()->getObjectManager()->get('dispatcher');
-
         // load widget
-        $dispatcher->loadModule($widget['module'], $widget['controller'], $widget['action'], $params);
+        $this->loadWidget($widget['module'], $widget['controller'], $widget['action'], $params);
 	}
+
+
+    public function loadWidget($module, $controller, $action, $params = array()){
+        // get all modules
+        $modules = Safan::handler()->getModules();
+
+        if(isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])){
+            $nameSpace               = '\\' . $module;
+            $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[$module];
+        }
+        elseif(isset($modules[ucfirst(strtolower($module))]) && is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])){ // check case sensitivity
+            $nameSpace                             = '\\' . ucfirst(strtolower($module));
+            $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
+        }
+        else
+            throw new ParamsNotFoundException('Widget ' . $module . ' module or path are not exist');
+
+        // Controller Class Name
+        $moduleController = ucfirst(strtolower($controller)) . 'Controller';
+        $controllerFile   = $modulePath . DS . 'Controllers' . DS . $moduleController . '.php';
+        $this->currentController = $controller;
+
+        if(!file_exists($controllerFile))
+            throw new ParamsNotFoundException('Widget ' . $modulePath . DS . 'Controllers' . DS . $moduleController . ' controller file is not exist');
+
+        // controller class
+        $controllerClass = $nameSpace . '\\Controllers\\' . $moduleController;
+
+        // Check for widgets
+        if(!class_exists($controllerClass))
+            include $controllerFile;
+
+        if(!class_exists($controllerClass))
+            throw new ParamsNotFoundException('Widget ' . $controllerClass .' Controller Class is not exists');
+
+        $moduleControllerObject = new $controllerClass;
+        $actionMethod           = $action;
+
+        if(!method_exists($moduleControllerObject, $actionMethod))
+            throw new ParamsNotFoundException('Widget ' . $actionMethod . ' Action Method is not exists in Controller Class');
+
+        return $moduleControllerObject->$actionMethod($params);
+    }
 }

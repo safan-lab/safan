@@ -131,6 +131,20 @@ class Controller
     }
 
     /**
+     * @param $view
+     */
+    protected function renderWidget($view){
+        $modulePath    = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
+        $contollerName = $this->getWidgetName();
+        $view          = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($contollerName) . DS . $view . '.php';
+
+        if(!file_exists($view))
+            return Safan::handler()->getObjectManager()->get('dispatcher')->dispatchToError(404, 'View file not found');
+
+        return $this->load($view, true);
+    }
+
+    /**
      * @param $file
      * @param bool $isLayout
      */
