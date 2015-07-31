@@ -133,10 +133,10 @@ class HttpHandler extends Handler
         }
 
         /******************* Cookie Object ****************/
-        if(!defined('INTERFACE_TYPE')){
+        //if(!defined('INTERFACE_TYPE')){
             $cookie = new Cookie();
             $om->setObject('cookie', $cookie);
-        }
+        //}
 
         /******************* Logger object **********/
         $logger = new Logger();
@@ -167,6 +167,7 @@ class HttpHandler extends Handler
         /******************* Assets Object *********/
         if(!isset($config['assets_path']))
             throw new ParamsNotFoundException('Assets path is not defined');
+
         $assetManager = new AssetManager($config['assets_path']);
         $om->setObject('assets', $assetManager);
 
@@ -176,6 +177,10 @@ class HttpHandler extends Handler
 
     /**
      * Initialize libraries from config
+     *
+     * @return bool
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     protected function initLibraries(){
         if(empty($this->config['init']))
