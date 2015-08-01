@@ -3,6 +3,7 @@
 namespace Safan\Handler;
 
 use Safan\Assets\AssetManager;
+use Safan\CacheManager\MemcacheManager;
 use Safan\Dispatcher\Dispatcher;
 use Safan\EventListener\EventListener;
 use Safan\FileStorageManager\FileStorageManager;
@@ -111,6 +112,12 @@ class HttpHandler extends Handler
         $eventListener = new EventListener($config['events']);
         $om->setObject('eventListener', $eventListener);
 
+        /******************* Memcache ***************/
+        if(isset($config['memcache']) && $config['memcache']){
+            $memcache = new MemcacheManager();
+            $om->setObject('memcache', $memcache);
+        }
+
         /******************* Dispatcher object ************/
         $dispatcher = new Dispatcher();
         $om->setObject('dispatcher', $dispatcher);
@@ -133,10 +140,8 @@ class HttpHandler extends Handler
         }
 
         /******************* Cookie Object ****************/
-        //if(!defined('INTERFACE_TYPE')){
-            $cookie = new Cookie();
-            $om->setObject('cookie', $cookie);
-        //}
+        $cookie = new Cookie();
+        $om->setObject('cookie', $cookie);
 
         /******************* Logger object **********/
         $logger = new Logger();
