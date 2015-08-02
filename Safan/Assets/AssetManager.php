@@ -155,4 +155,18 @@ class AssetManager
 
         return $fileArray;
     }
+
+    /**
+     * @return object|CssManager
+     */
+    public function getCssManager(){
+        return $this->cssManager;
+    }
+
+    /**
+     * @return object|JsManager
+     */
+    public function getJsManager(){
+        return $this->jsManager;
+    }
 }
