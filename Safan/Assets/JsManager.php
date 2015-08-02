@@ -48,30 +48,29 @@ class JsManager
 
     /**
      * @param $files
+     * @param string $cacheFileName
      * @return bool|void
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    private function compressFiles($files){
+    public function compressFiles($files, $cacheFileName = ''){
         if(empty($files))
             return false;
 
-        $cacheFileName = '';
         $buffer = '';
-
         foreach ($files as $jsFile) {
-            $cacheFileName .= $jsFile;
-
             if(!file_exists($jsFile))
                 throw new FileNotFoundException('Asset js file not found');
 
             $buffer .= "\n" . file_get_contents($jsFile);
         }
 
-        $cacheFileName = md5(implode('_', $files)) . '.js';
+        if($cacheFileName == '')
+            $cacheFileName = md5(implode('_', $files)) . '.js';
 
         // Write everything out
         $filePath = APP_BASE_PATH . DS . 'resource' . $this->cacheDir . DS . $cacheFileName;
         $fp = fopen($filePath, 'w');
+
         if(!$this->fwriteStream($fp, $buffer))
             return false;
 

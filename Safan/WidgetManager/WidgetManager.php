@@ -21,7 +21,12 @@ class WidgetManager
     /**
      * @var array
      */
-    private $widgetRouting = [];
+    private $currentWidgetRouting = [];
+
+    /**
+     * @var array
+     */
+    private $loadedWidgetsData = [];
 
     /**
      * Get config widgets list
@@ -101,28 +106,32 @@ class WidgetManager
         if(!method_exists($moduleControllerObject, $actionMethod))
             throw new ParamsNotFoundException('Widget ' . $actionMethod . ' Action Method is not exists in Controller Class');
 
-        $this->setWidgetRouting([
+        // save current widget data
+        $this->currentWidgetRouting = [
             'name'       => $widgetName,
             'modulePath' => $modulePath,
             'module'     => strtolower($module),
             'controller' => strtolower($controller),
             'action'     => $actionMethod,
-        ]);
+        ];
+
+        // save loaded widgets data
+        $this->loadedWidgetsData[] = $this->currentWidgetRouting;
 
         return $moduleControllerObject->$actionMethod($params);
     }
 
     /**
-     * @param $widgetRouting
+     * @return array
      */
-    private function setWidgetRouting($widgetRouting){
-        $this->widgetRouting = $widgetRouting;
+    public function getLoadedWidgetsData(){
+        return $this->loadedWidgetsData;
     }
 
     /**
      * @return array
      */
-    public function getWidgetRouting(){
-        return $this->widgetRouting;
+    public function getCurrentWidgetRouting(){
+        return $this->currentWidgetRouting;
     }
 }

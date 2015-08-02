@@ -45,18 +45,16 @@ class CssManager
 
     /**
      * @param $files
+     * @param $cacheFileName
      * @return bool|void
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    private function compressFiles($files){
+    public function compressFiles($files, $cacheFileName = ''){
         if(empty($files))
             return false;
 
-        $cacheFileName = '';
         $buffer = '';
-
         foreach ($files as $cssFile) {
-            $cacheFileName .= $cssFile;
 
             if(!file_exists($cssFile))
                 throw new FileNotFoundException('Asset css file not found');
@@ -64,7 +62,8 @@ class CssManager
             $buffer .= file_get_contents($cssFile);
         }
 
-        $cacheFileName = md5(implode('_', $files)) . '.css';
+        if($cacheFileName == '')
+            $cacheFileName = md5(implode('_', $files)) . '.css';
 
         // Remove comments
         $buffer = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $buffer);

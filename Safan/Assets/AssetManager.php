@@ -2,6 +2,7 @@
 
 namespace Safan\Assets;
 
+use Safan\GlobalData\Get;
 use Safan\GlobalExceptions\FileNotFoundException;
 use Safan\GlobalExceptions\ParamsNotFoundException;
 use Safan\Safan;
@@ -32,10 +33,10 @@ class AssetManager
      * @param $assetsPath
      */
     public function __construct($assetsPath){
-        $this->assetsUri = Safan::handler()->baseUrl . '/' . $assetsPath;
+        $this->assetsUri  = Safan::handler()->baseUrl . '/' . $assetsPath;
         $this->compressor = new Compressor($assetsPath);
         $this->cssManager = new CssManager();
-        $this->jsManager = new JsManager();
+        $this->jsManager  = new JsManager();
     }
 
     /**

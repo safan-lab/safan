@@ -3,7 +3,6 @@
 namespace Safan\Assets;
 
 use Safan\Assets\Exceptions\DirectoryException;
-use Safan\GlobalExceptions\FileNotFoundException;
 
 class Compressor
 {

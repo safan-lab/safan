@@ -136,7 +136,7 @@ class Controller
      * @throws \Safan\GlobalExceptions\ParamsNotFoundException
      */
     protected function renderWidget($view){
-        $widgetRouting  = Safan::handler()->getObjectManager()->get('widget')->getWidgetRouting();
+        $widgetRouting  = Safan::handler()->getObjectManager()->get('widget')->getCurrentWidgetRouting();
         $modulePath     = $widgetRouting['modulePath'];
         $controllerName = $widgetRouting['controller'];
         $view           = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($controllerName) . DS . $view . '.php';
