@@ -89,12 +89,21 @@ class HttpHandler extends Handler
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     public function runApplication(){
-        /****************** Main Config ************************/
-        $mainConfigFile = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'main.config.php';
-        if(file_exists($mainConfigFile))
-            $config = include($mainConfigFile);
-        else
+        /****************** Config files ************************/
+        $localConfigFile = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'local.config.php';
+        $mainConfigFile  = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'main.config.php';
+
+        if(!file_exists($mainConfigFile))
             throw new FileNotFoundException('Main Config file "'. $mainConfigFile .'" not found');
+
+        if(file_exists($localConfigFile)){
+            $config = include $localConfigFile;
+
+            if(!isset($config['debug']) || $config['debug'] === false)
+                $config = include $mainConfigFile;
+        }
+        else
+            $config = include $mainConfigFile;
 
         $this->config = $config;
         /****************** Set Debug mode *******************/
