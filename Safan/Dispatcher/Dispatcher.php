@@ -63,7 +63,8 @@ class Dispatcher
             Safan::handler()->getObjectManager()->get('flashMessenger')->set('error', $message);
         Safan::handler()->getObjectManager()->get('router')->checkUri('/' . $code);
 
-        return $this->loadModule(Get::str('module'), Get::str('controller'), Get::str('action'));
+        $this->loadModule(Get::str('module'), Get::str('controller'), Get::str('action'));
+        exit;
     }
 
     /**
