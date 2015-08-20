@@ -213,7 +213,7 @@ class HttpHandler extends Handler
                 if(isset($lib['params']))
                     $dataMapper->{$lib['method']}($lib['params']);
                 else
-                    $dataMapper->{$lib['method']()};
+                    $dataMapper->{$lib['method']}();
             }
             else
                 throw new ParamsNotFoundException($lib['method']);
