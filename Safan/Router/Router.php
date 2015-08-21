@@ -96,8 +96,8 @@ class Router
                         $_GET[$varName] = $matches[$key];
                     }
                 }
-                $isMatch = true;
-                return true;
+
+                return $isMatch = true;
             }
         }
 
@@ -110,32 +110,53 @@ class Router
      * @return bool
      */
     public function checkCliCommand($command){
-        $isMatch = false;
+        $isMatch        = false;
+        $matchedCommand = [];
 
         foreach ($this->cliRoutes as $rule => $settings) {
-            $matches = array();
+            $matches = [];
 
             if (preg_match($rule, $command, $matches)) {
-                Get::setParams('module', $settings['module']);
-                Get::setParams('controller', $settings['controller']);
-                Get::setParams('action', $settings['action']);
-
-                $route['matches'] = array();
-                foreach ($settings['matches'] as $key => $varName) {
-                    if (empty($varName))
-                        continue;
-                    if (isset($matches[$key])){
-                        $_GET[$varName] = $matches[$key];
-                    }
+                if (isset($settings['important']) && $settings['important']) {
+                    $matchedCommand = [
+                        'command' => $this->cliRoutes[$rule],
+                        'matches' => $matches
+                    ];
+                    break;
+                } else {
+                    $matchedCommand = [
+                        'command' => $this->cliRoutes[$rule],
+                        'matches' => $matches
+                    ];
                 }
+
                 $isMatch = true;
-                return true;
             }
         }
 
+        if(!$isMatch)
+            $this->checkCliCommand('/404');
+        else
+            $this->selectCommand($matchedCommand['command'], $matchedCommand['matches']);
+    }
 
-        if(!$isMatch){
-            $this->checkCliCommand('/404');}
+    /**
+     * @param $command
+     * @param $matches
+     */
+    private function selectCommand($command, $matches){
+        Get::setParams('module', $command['module']);
+        Get::setParams('controller', $command['controller']);
+        Get::setParams('action', $command['action']);
+
+        $route['matches'] = array();
+        foreach ($command['matches'] as $key => $varName) {
+            if (empty($varName))
+                continue;
+            if (isset($matches[$key])){
+                $_GET[$varName] = $matches[$key];
+            }
+        }
     }
 
 }

@@ -178,13 +178,6 @@ class HttpHandler extends Handler
         else
             $this->setBaseUrl(null);
 
-        /******************* Assets Object *********/
-        if(!isset($config['assets_path']))
-            throw new ParamsNotFoundException('Assets path is not defined');
-
-        $assetManager = new AssetManager($config['assets_path']);
-        $om->setObject('assets', $assetManager);
-
         unset($config);
         unset($om);
     }
