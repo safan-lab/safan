@@ -22,7 +22,11 @@ class EventListener
     }
 
     /**
-     *
+     * @param $eventKey
+     * @return bool
+     * @throws \Safan\GlobalExceptions\ObjectDoesntExistsException
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     public function runEvent($eventKey){
         if(!isset($this->events[$eventKey]))
@@ -47,7 +51,7 @@ class EventListener
         $eventFile = $allModules[$moduleName] . DS . 'Events' . DS . $eventClass . '.php';
         $eventClass = $moduleName . '\\Events\\' . $eventClass;
 
-        // check Evenet file
+        // check Event file
         if(!file_exists($eventFile))
             throw new FileNotFoundException($eventFile . ' event file is not exist');
 
