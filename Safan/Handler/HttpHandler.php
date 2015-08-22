@@ -1,18 +1,26 @@
 <?php
 
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\Handler;
 
-use Safan\Assets\AssetManager;
 use Safan\CacheManager\MemcacheManager;
 use Safan\Dispatcher\Dispatcher;
 use Safan\EventListener\EventListener;
-use Safan\FileStorageManager\FileStorageManager;
 use Safan\FlashMessenger\FlashMessenger;
 use Safan\GlobalData\Cookie;
 use Safan\GlobalData\Session;
 use Safan\GlobalExceptions\FileNotFoundException;
 use Safan\GlobalExceptions\ParamsNotFoundException;
 use Safan\Logger\Logger;
+use Safan\Mvc\View;
 use Safan\ObjectManager\ObjectManager;
 use Safan\Request\Request;
 use Safan\Router\Router;
@@ -156,17 +164,15 @@ class HttpHandler extends Handler
         $logger = new Logger();
         $om->setObject('logger', $logger);
 
-        /******************* FileStorage Object ************/
-        if(!class_exists('Imagick'))
-            $om->get('logger')->setLog('imagick', 'Imagick class not found');
-        $fileStorage = new FileStorageManager();
-        $om->setObject('fileStorage', $fileStorage);
-
         /******************* FlashMessenger Object ********/
         if(!defined('INTERFACE_TYPE')){
             $flashMessenger = new FlashMessenger();
             $om->setObject('flashMessenger', $flashMessenger);
         }
+
+        /******************* View manager *****************/
+        $view = new View();
+        $om->setObject('view', $view);
 
         /******************* WidgetManager Object *********/
         $widgetManager = new WidgetManager();
