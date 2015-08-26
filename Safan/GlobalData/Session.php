@@ -37,12 +37,6 @@ class Session
         if (!$this->sessionStarted) {
             $this->sessionStarted = true;
             session_start();
-            // save persistent data at the end of execution
-            $sessionManager = $this;
-            register_shutdown_function(
-                function() use($sessionManager){
-                    $sessionManager->endSession(); }
-            );
         }
     }
 
