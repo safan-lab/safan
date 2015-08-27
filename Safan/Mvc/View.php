@@ -107,7 +107,6 @@ class View
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
         $vars['logger']         = Safan::handler()->getObjectManager()->get('logger');
         $vars['flashMessenger'] = Safan::handler()->getObjectManager()->get('flashMessenger');
-        $vars['assets']         = Safan::handler()->getObjectManager()->get('assets');
 
         extract($vars, EXTR_REFS);
 
@@ -132,7 +131,6 @@ class View
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
         $vars['logger']         = Safan::handler()->getObjectManager()->get('logger');
         $vars['flashMessenger'] = Safan::handler()->getObjectManager()->get('flashMessenger');
-        $vars['assets']         = Safan::handler()->getObjectManager()->get('assets');
 
         extract($vars, EXTR_REFS);
 
@@ -148,7 +146,6 @@ class View
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
         $vars['logger']         = Safan::handler()->getObjectManager()->get('logger');
         $vars['flashMessenger'] = Safan::handler()->getObjectManager()->get('flashMessenger');
-        $vars['assets']         = Safan::handler()->getObjectManager()->get('assets');
 
         extract($vars, EXTR_REFS);
 
