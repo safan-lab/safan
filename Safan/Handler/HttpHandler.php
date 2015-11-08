@@ -104,12 +104,8 @@ class HttpHandler extends Handler
         if(!file_exists($mainConfigFile))
             throw new FileNotFoundException('Main Config file "'. $mainConfigFile .'" not found');
 
-        if(file_exists($localConfigFile)){
+        if(file_exists($localConfigFile))
             $config = include $localConfigFile;
-
-            if(!isset($config['debug']) || $config['debug'] === false)
-                $config = include $mainConfigFile;
-        }
         else
             $config = include $mainConfigFile;
 
@@ -119,6 +115,8 @@ class HttpHandler extends Handler
             $this->debugMode = true;
         else
             $this->debugMode = false;
+
+        $this->setDebugMode();
 
         /******************* Object manager ***************/
         $this->objectManager = $om = new ObjectManager();
@@ -217,6 +215,16 @@ class HttpHandler extends Handler
             else
                 throw new ParamsNotFoundException($lib['method']);
         }
+    }
+
+    /**
+     * Set Debug Mode
+     */
+    private function setDebugMode(){
+        if($this->debugMode)
+            error_reporting(E_ALL);
+        else
+            error_reporting(0);
     }
 
     /**
