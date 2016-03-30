@@ -88,7 +88,7 @@ class HttpHandler extends Handler
 
             if ($initSslPort)
                 $this->baseUrl = "https://" . $_SERVER['HTTP_HOST'] . '/' . $url;
-            if ($url && $url != "")
+            elseif ($url && $url != "")
                 $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'] . '/' . $url;
             else
                 $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'];
