@@ -46,6 +46,11 @@ class HttpHandler extends Handler
     /**
      * @var string
      */
+    private $protocol;
+
+    /**
+     * @var string
+     */
     public $baseUrl;
 
     /**
@@ -77,21 +82,31 @@ class HttpHandler extends Handler
     }
 
     /**
+     * @return string
+     */
+    public function getProtocol() {
+        return $this->protocol;
+    }
+
+    /**
      * Set Base Url
      *
      * @param bool $url
-     * @param bool $initSslPort
+     * @param bool $initProtocol
      */
-    private function setBaseUrl($url = false, $initSslPort = false){
+    private function setBaseUrl($url = false, $initProtocol = false){
         if(isset($_SERVER['HTTP_HOST'])){
             $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 
-            if ($initSslPort)
-                $this->baseUrl = "https://" . $_SERVER['HTTP_HOST'] . '/' . $url;
-            elseif ($url && $url != "")
-                $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'] . '/' . $url;
+            if ($initProtocol)
+                $this->protocol = $initProtocol;
             else
-                $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'];
+                $this->protocol = $protocol;
+
+            if ($url && $url != "")
+                $this->baseUrl = $this->protocol . $_SERVER['HTTP_HOST'] . '/' . $url;
+            else
+                $this->baseUrl = $this->protocol . $_SERVER['HTTP_HOST'];
 
             $this->getObjectManager()->get('cookie')->set('m_ref', $this->baseUrl);
         }
@@ -182,14 +197,14 @@ class HttpHandler extends Handler
         $om->setObject('widget', $widgetManager);
 
         /******************* Set Base url *********************/
-        $initSslPort = false;
-        if (isset($config['ssl_port']))
-            $initSslPort = true;
+        $initProtocol = false;
+        if (isset($config['protocol']))
+            $initProtocol = $config['protocol'];
 
         if (isset($config['base_url']))
-            $this->setBaseUrl($config['base_url'], $initSslPort);
+            $this->setBaseUrl($config['base_url'], $initProtocol);
         else
-            $this->setBaseUrl(null, $initSslPort);
+            $this->setBaseUrl(null, $initProtocol);
 
         unset($config);
         unset($om);
