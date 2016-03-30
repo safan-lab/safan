@@ -78,12 +78,17 @@ class HttpHandler extends Handler
 
     /**
      * Set Base Url
+     *
+     * @param bool $url
+     * @param bool $initSslPort
      */
-    private function setBaseUrl($url = false){
+    private function setBaseUrl($url = false, $initSslPort = false){
         if(isset($_SERVER['HTTP_HOST'])){
             $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 
-            if($url && $url != "")
+            if ($initSslPort)
+                $this->baseUrl = "https://" . $_SERVER['HTTP_HOST'] . '/' . $url;
+            if ($url && $url != "")
                 $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'] . '/' . $url;
             else
                 $this->baseUrl = $protocol . $_SERVER['HTTP_HOST'];
@@ -177,10 +182,14 @@ class HttpHandler extends Handler
         $om->setObject('widget', $widgetManager);
 
         /******************* Set Base url *********************/
-        if(isset($config['base_url']))
-            $this->setBaseUrl($config['base_url']);
+        $initSslPort = false;
+        if (isset($config['ssl_port']))
+            $initSslPort = true;
+
+        if (isset($config['base_url']))
+            $this->setBaseUrl($config['base_url'], $initSslPort);
         else
-            $this->setBaseUrl(null);
+            $this->setBaseUrl(null, $initSslPort);
 
         unset($config);
         unset($om);
