@@ -43,6 +43,7 @@ class WidgetManager
     public function __construct(){
         // config file path
         $configFile = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'widgets.config.php';
+
         if(!file_exists($configFile))
             throw new FileNotFoundException('Widgets config file is not exist');
 
@@ -142,5 +143,12 @@ class WidgetManager
      */
     public function getCurrentWidgetRouting(){
         return $this->currentWidgetRouting;
+    }
+
+    /**
+     * Add widget
+     */
+    public function addWidget($name, $params){
+        $this->config[$name] = $params;
     }
 }

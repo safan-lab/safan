@@ -142,7 +142,7 @@ class Router
                 $isMatch = true;
             }
         }
-
+        
         if(!$isMatch)
             $this->checkCliCommand('/404');
         else

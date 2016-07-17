@@ -61,6 +61,13 @@ class HttpHandler extends Handler
     }
 
     /**
+     * @return array
+     */
+    public function addModule($namespace, $path){
+        $this->modules[$namespace] = $path;
+    }
+
+    /**
      * @return mixed
      */
     public function getObjectManager(){
