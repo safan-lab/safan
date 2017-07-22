@@ -142,20 +142,29 @@ class SplClassLoader
         if (null === $this->_namespace || $this->_namespace . $this->_namespaceSeparator === substr($className, 0, strlen($this->_namespace . $this->_namespaceSeparator))) {
             $fileName = '';
             $namespace = '';
+
             if (false !== ($lastNsPos = strripos($className, $this->_namespaceSeparator))) {
                 $namespace = substr($className, 0, $lastNsPos);
                 $className = substr($className, $lastNsPos + 1);
                 $fileName = str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
             }
-    		
-            $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
-            $filePath = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
 
-            if (file_exists($filePath)){
+            $fileName .= str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
+            $filePath = ($this->_includePath !== null ? $this->_includePath : '') . $fileName;
+
+            if (file_exists($filePath)) {
                 require $filePath;
+            } elseif (strpos($filePath, '..' . DIRECTORY_SEPARATOR . $this->_namespace . DIRECTORY_SEPARATOR) !== false) {
+                $filePath = str_replace('..' . DIRECTORY_SEPARATOR . $this->_namespace . DIRECTORY_SEPARATOR, '', $filePath);
+
+                if (file_exists($filePath)){
+                    require $filePath;
+                } else {
+                    throw new FileNotFoundException($filePath . ' is not exist in filesystem');
+                }
+            } else {
+                throw new FileNotFoundException($filePath . ' is not exist in filesystem');
             }
-            else{
-                throw new FileNotFoundException($filePath . ' is not exist in filesystem');}
         }
     }
 }
