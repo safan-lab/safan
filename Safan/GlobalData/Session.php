@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\GlobalData;
 
 class Session
@@ -28,12 +37,6 @@ class Session
         if (!$this->sessionStarted) {
             $this->sessionStarted = true;
             session_start();
-            // save persistent data at the end of execution
-            $sessionManager = $this;
-            register_shutdown_function(
-                function() use($sessionManager){
-                    $sessionManager->endSession(); }
-            );
         }
     }
 

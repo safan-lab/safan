@@ -1,6 +1,24 @@
 <?php
 
+/*
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\Dispatcher;
+
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 use Safan\GlobalData\Get;
 use Safan\Safan;
@@ -63,7 +81,8 @@ class Dispatcher
             Safan::handler()->getObjectManager()->get('flashMessenger')->set('error', $message);
         Safan::handler()->getObjectManager()->get('router')->checkUri('/' . $code);
 
-        return $this->loadModule(Get::str('module'), Get::str('controller'), Get::str('action'));
+        $this->loadModule(Get::str('module'), Get::str('controller'), Get::str('action'));
+        exit;
     }
 
     /**

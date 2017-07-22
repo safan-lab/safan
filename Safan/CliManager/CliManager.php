@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\CliManager;
 
 use Safan\GlobalData\Get;
@@ -84,19 +93,55 @@ class CliManager
 
     /**
      * Get Message
+     *
      * @color green
      */
-    private function getMessage($message){
-        echo '\e[00;34m' . $message . '\e[0m \n\r';
-        exit;
+    public static function getMessage($message){
+        echo self::setTextColor($message, 'green') . "\n\r";
     }
 
     /**
      * Get Error
+     *
      * @color red
      */
     public static function getErrorMessage($message){
-        echo '\033[' . $message . '\033[0m' . PHP_EOL;
+        echo self::setTextColor($message, 'red') . "\n\r";
         exit;
+    }
+
+    /**
+     * Set Color and return string
+     *
+     * @param $color
+     * @param $str
+     * @return string
+     */
+    public static function setTextColor($str, $color){
+        switch ($color) {
+            case 'red' :
+                $color = "\e[0;31m";
+                break;
+            case 'yellow' :
+                $color = "\e[0;33m";
+                break;
+            case 'green' :
+                $color = "\e[0;32m";
+                break;
+            case 'blue' :
+                $color = "\e[0;34m";
+                break;
+            case 'white' :
+                $color = "\e[0;37m";
+                break;
+            case 'purple' :
+                $color = "\e[0;35m";
+                break;
+            case 'cyan' :
+                $color = "\e[0;36m";
+                break;
+        }
+
+        return $color . $str . "\e[0m";
     }
 }
