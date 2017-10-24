@@ -129,6 +129,8 @@ class Router
             $matches = [];
 
             if (preg_match($rule, $command, $matches)) {
+                $isMatch = true;
+
                 if (isset($settings['important']) && $settings['important']) {
                     $matchedCommand = [
                         'command' => $this->cliRoutes[$rule],
@@ -142,23 +144,21 @@ class Router
                         'matches' => $matches
                     ];
                 }
-
-                $isMatch = true;
             }
         }
-        
-        if (!$isMatch) {
-            $this->checkCliCommand('/404');
-        } else {
+
+        if ($isMatch) {
             $this->selectCommand($matchedCommand['command'], $matchedCommand['matches']);
+        } else {
+            $this->checkCliCommand('/404');
         }
     }
 
     /**
-     * @param string $command
+     * @param array $command
      * @param array $matches
      */
-    private function selectCommand(string $command, array $matches = [])
+    private function selectCommand(array $command, array $matches = [])
     {
         Get::setParams('module', $command['module']);
         Get::setParams('controller', $command['controller']);
