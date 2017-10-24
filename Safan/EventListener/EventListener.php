@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\EventListener;
 
 use Safan\GlobalExceptions\FileNotFoundException;
@@ -22,7 +31,11 @@ class EventListener
     }
 
     /**
-     *
+     * @param $eventKey
+     * @return bool
+     * @throws \Safan\GlobalExceptions\ObjectDoesntExistsException
+     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
+     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
     public function runEvent($eventKey){
         if(!isset($this->events[$eventKey]))
@@ -47,7 +60,7 @@ class EventListener
         $eventFile = $allModules[$moduleName] . DS . 'Events' . DS . $eventClass . '.php';
         $eventClass = $moduleName . '\\Events\\' . $eventClass;
 
-        // check Evenet file
+        // check Event file
         if(!file_exists($eventFile))
             throw new FileNotFoundException($eventFile . ' event file is not exist');
 

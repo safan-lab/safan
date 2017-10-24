@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * This file is part of the Safan package.
+ *
+ * (c) Harut Grigoryan <ceo@safanlab.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace Safan\Router;
 
 use Safan\GlobalData\Get;
@@ -57,7 +66,7 @@ class Router
     public function checkCliRoutes(){
         // get modules
         $modules = Safan::handler()->getModules();
-        $modules = array_reverse($modules);
+
         // get all routes
         foreach($modules as $moduleName => $modulePath){
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'cli.router.config.php';
@@ -96,8 +105,8 @@ class Router
                         $_GET[$varName] = $matches[$key];
                     }
                 }
-                $isMatch = true;
-                return true;
+
+                return $isMatch = true;
             }
         }
 
@@ -110,32 +119,53 @@ class Router
      * @return bool
      */
     public function checkCliCommand($command){
-        $isMatch = false;
+        $isMatch        = false;
+        $matchedCommand = [];
 
         foreach ($this->cliRoutes as $rule => $settings) {
-            $matches = array();
+            $matches = [];
 
             if (preg_match($rule, $command, $matches)) {
-                Get::setParams('module', $settings['module']);
-                Get::setParams('controller', $settings['controller']);
-                Get::setParams('action', $settings['action']);
-
-                $route['matches'] = array();
-                foreach ($settings['matches'] as $key => $varName) {
-                    if (empty($varName))
-                        continue;
-                    if (isset($matches[$key])){
-                        $_GET[$varName] = $matches[$key];
-                    }
+                if (isset($settings['important']) && $settings['important']) {
+                    $matchedCommand = [
+                        'command' => $this->cliRoutes[$rule],
+                        'matches' => $matches
+                    ];
+                    break;
+                } else {
+                    $matchedCommand = [
+                        'command' => $this->cliRoutes[$rule],
+                        'matches' => $matches
+                    ];
                 }
+
                 $isMatch = true;
-                return true;
             }
         }
+        
+        if(!$isMatch)
+            $this->checkCliCommand('/404');
+        else
+            $this->selectCommand($matchedCommand['command'], $matchedCommand['matches']);
+    }
 
+    /**
+     * @param $command
+     * @param $matches
+     */
+    private function selectCommand($command, $matches){
+        Get::setParams('module', $command['module']);
+        Get::setParams('controller', $command['controller']);
+        Get::setParams('action', $command['action']);
 
-        if(!$isMatch){
-            $this->checkCliCommand('/404');}
+        $route['matches'] = array();
+        foreach ($command['matches'] as $key => $varName) {
+            if (empty($varName))
+                continue;
+            if (isset($matches[$key])){
+                $_GET[$varName] = $matches[$key];
+            }
+        }
     }
 
 }
