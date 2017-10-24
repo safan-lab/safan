@@ -8,7 +8,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Safan\Handler;
 
 use Safan\CliManager\CliManager;
@@ -18,14 +17,16 @@ class ConsoleHandler extends HttpHandler
     /**
      * Run Http applications
      */
-    public function runApplication(){
+    public function runApplication()
+    {
         parent::runApplication();
     }
 
     /**
      * @return CliManager|void
      */
-    public function handlingProcess(){
+    public function handlingProcess()
+    {
         // Set Environments
         $env = $_SERVER['argv'];
 

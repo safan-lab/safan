@@ -20,88 +20,89 @@ class Router
     /**
      * @var array
      */
-    private $httpRoutes = array();
+    private $httpRoutes = [];
 
     /**
      * @var array
      */
-    private $cliRoutes = array();
+    private $cliRoutes = [];
 
     /**
      * Check http routes for module
      */
-    public function checkHttpRoutes(){
+    public function checkHttpRoutes()
+    {
         // get modules
         $modules = Safan::handler()->getModules();
 
-        $frameworkDefaultRoute = array();
+        $frameworkDefaultRoute = [];
 
         // get all routes
-        foreach($modules as $moduleName => $modulePath){
+        foreach ($modules as $moduleName => $modulePath) {
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'router.config.php';
 
-            // register module namespaces
-            $loader = new SplClassLoader($moduleName, APP_BASE_PATH . DS . $modulePath . DS . '..' . DS);
-            $loader->register();
-
-            if(file_exists($routerFile)){
+            if (file_exists($routerFile)) {
                 $route = include($routerFile);
-                if($moduleName != 'SafanResponse')
+
+                if ($moduleName != 'SafanResponse') {
                     $this->httpRoutes = array_replace($this->httpRoutes, $route);
-                else
+                } else {
                     $frameworkDefaultRoute = $route;
+                }
             }
         }
 
         // merge default route
-        foreach($frameworkDefaultRoute as $route => $routeParam){
-            if(!isset($this->httpRoutes[$route]))
+        foreach ($frameworkDefaultRoute as $route => $routeParam) {
+            if (!isset($this->httpRoutes[$route])) {
                 $this->httpRoutes[$route] = $routeParam;
+            }
         }
     }
 
     /**
      * Check cli routes for module
      */
-    public function checkCliRoutes(){
+    public function checkCliRoutes()
+    {
         // get modules
         $modules = Safan::handler()->getModules();
 
         // get all routes
-        foreach($modules as $moduleName => $modulePath){
+        foreach ($modules as $moduleName => $modulePath) {
             $routerFile = APP_BASE_PATH . DS . $modulePath . DS . 'Resources' . DS . 'config' . DS . 'cli.router.config.php';
 
-            // register module namespaces
-            $loader = new SplClassLoader($moduleName, $modulePath . DS . '..' . DS);
-            $loader->register();
-
-            if(file_exists($routerFile)){
-                $route = include($routerFile);
+            if (file_exists($routerFile)) {
+                $route           = include($routerFile);
                 $this->cliRoutes = array_merge($this->cliRoutes, $route);
             }
         }
     }
 
     /**
-     * @param $uri
+     * @param string $uri
      * @return bool
      */
-    public function checkUri($uri){
+    public function checkUri(string $uri = ''): bool
+    {
         $isMatch = false;
 
         foreach ($this->httpRoutes as $rule => $settings) {
-            $matches = array();
+            $matches = [];
 
             if (preg_match($rule, $uri, $matches)) {
                 Get::setParams('module', $settings['module']);
                 Get::setParams('controller', $settings['controller']);
                 Get::setParams('action', $settings['action']);
 
-                $route['matches'] = array();
+                $route['matches'] = [];
+
                 foreach ($settings['matches'] as $key => $varName) {
-                    if (empty($varName))
+                    if (empty($varName)) {
                         continue;
-                    if (isset($matches[$key])){
+                    }
+
+                    if (isset($matches[$key])) {
                         $_GET[$varName] = $matches[$key];
                     }
                 }
@@ -110,15 +111,17 @@ class Router
             }
         }
 
-        if(!$isMatch)
+        if (!$isMatch) {
             $this->checkUri('/404');
+        }
     }
 
     /**
      * @param $command
      * @return bool
      */
-    public function checkCliCommand($command){
+    public function checkCliCommand(string $command)
+    {
         $isMatch        = false;
         $matchedCommand = [];
 
@@ -131,6 +134,7 @@ class Router
                         'command' => $this->cliRoutes[$rule],
                         'matches' => $matches
                     ];
+
                     break;
                 } else {
                     $matchedCommand = [
@@ -143,29 +147,33 @@ class Router
             }
         }
         
-        if(!$isMatch)
+        if (!$isMatch) {
             $this->checkCliCommand('/404');
-        else
+        } else {
             $this->selectCommand($matchedCommand['command'], $matchedCommand['matches']);
+        }
     }
 
     /**
-     * @param $command
-     * @param $matches
+     * @param string $command
+     * @param array $matches
      */
-    private function selectCommand($command, $matches){
+    private function selectCommand(string $command, array $matches = [])
+    {
         Get::setParams('module', $command['module']);
         Get::setParams('controller', $command['controller']);
         Get::setParams('action', $command['action']);
 
-        $route['matches'] = array();
+        $route['matches'] = [];
+
         foreach ($command['matches'] as $key => $varName) {
-            if (empty($varName))
+            if (empty($varName)) {
                 continue;
+            }
+
             if (isset($matches[$key])){
                 $_GET[$varName] = $matches[$key];
             }
         }
     }
-
 }

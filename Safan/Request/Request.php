@@ -24,43 +24,56 @@ class Request
     /**
      * @return bool
      */
-    public function isPostRequest(){
-        if($_SERVER['REQUEST_METHOD'] == 'POST')
+    public function isPostRequest(): bool
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             return true;
+        }
+
         return false;
     }
 
     /**
      * @return bool
      */
-    public function isGetRequest(){
-        if($_SERVER['REQUEST_METHOD'] == 'GET')
+    public function isGetRequest(): bool
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             return true;
+        }
+
         return false;
     }
 
     /**
      * @return bool
      */
-    public function isDeleteRequest(){
-        if($_SERVER['REQUEST_METHOD'] == 'DELETE')
+    public function isDeleteRequest(): bool
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'DELETE') {
             return true;
+        }
+
         return false;
     }
 
     /**
      * @return bool
      */
-    public function isPutRequest(){
-        if($_SERVER['REQUEST_METHOD'] == 'PUT')
+    public function isPutRequest(): bool
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'PUT') {
             return true;
+        }
+
         return false;
     }
 
     /**
      * @return string
      */
-    public function getRequestType(){
+    public function getRequestType(): string
+    {
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'PUT':
                 $this->requestType = 'PUT';
@@ -82,23 +95,27 @@ class Request
     /**
      * @return string
      */
-    public function getUri(){
+    public function getUri(): string
+    {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
-        $uri = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+        $uri      = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
         $uriRequest = strpos($uri, Safan::handler()->baseUrl);
-        if($uriRequest !== false){
+
+        if ($uriRequest !== false) {
             $uri = substr($uri, strlen(Safan::handler()->baseUrl) - $uriRequest);
         }
 
-        //Get Variables
-        if (strpos($uri, '?') !== false){
-            $uriVars = parse_str(substr(strstr($uri, '?'), 1), $outPutVars);
+        if (strpos($uri, '?') !== false) {
+            parse_str(substr(strstr($uri, '?'), 1), $outPutVars);
+
             //Generate Get variables
-            foreach($outPutVars as $key => $value){
-                if(($key != 'module') && ($key != 'controller') && ($key != 'action'))
+            foreach ($outPutVars as $key => $value) {
+                if (($key != 'module') && ($key != 'controller') && ($key != 'action')) {
                     Get::setParams($key, $value);
+                }
             }
+
             //Generate main uri
             $uri = strstr($uri, '?', true);
         }

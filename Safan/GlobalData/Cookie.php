@@ -20,12 +20,15 @@ class Cookie
      * @param string $path
      * @param null $domain
      * @param null $secure
-     * @param bool $httponly
+     * @param bool $httpOnly
      * @return bool
      */
-    public function set($name, $value, $expire=0, $path='/', $domain=null, $secure=null, $httponly=false){
-        if(setcookie($name, $value, $expire, $path, $domain, $secure, $httponly))
+    public function set($name, $value, $expire = 0, $path = '/', $domain = null, $secure = null, $httpOnly = false)
+    {
+        if (setcookie($name, $value, $expire, $path, $domain, $secure, $httpOnly)) {
             return true;
+        }
+
         return false;
     }
 
@@ -33,16 +36,22 @@ class Cookie
      * @param $name
      * @return bool
      */
-    public function get($name){
-        if(isset($_COOKIE[$name]))
+    public function get($name)
+    {
+        if (isset($_COOKIE[$name])) {
             return $_COOKIE[$name];
+        }
+
         return false;
     }
 
     /**
      * @param $name
      */
-    public function remove($name){
-        if(isset($_COOKIE[$name])){ $this->set($name, 'false', time() - 1); }
+    public function remove(string $name)
+    {
+        if (isset($_COOKIE[$name])) {
+            $this->set($name, 'false', time() - 1);
+        }
     }
 }

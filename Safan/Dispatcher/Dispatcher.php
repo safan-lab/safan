@@ -38,35 +38,43 @@ class Dispatcher
     /**
      * @return string
      */
-    public function getCurrentModulePath(){
+    public function getCurrentModulePath()
+    {
         return $this->currentModulePath;
     }
 
     /**
      * @return string
      */
-    public function getCurrentController(){
+    public function getCurrentController()
+    {
         return $this->currentController;
     }
 
     /**
      * Dispatch
      */
-    public function dispatch(){
+    public function dispatch()
+    {
         // check request and set params
         $uri = Safan::handler()->getObjectManager()->get('request')->getUri();
         Safan::handler()->getObjectManager()->get('router')->checkUri($uri);
 
-        $module = Get::exists('module');
-        $controller = Get::exists('controller');
-        $action = Get::exists('action');
+        $module     = Get::str('module', false);
+        $controller = Get::str('controller', false);
+        $action     = Get::str('action', false);
 
-        if(!$module)
+        if (!$module) {
             return $this->dispatchToError(404, 'Module Global Variable is not exists');
-        if(!$controller)
+        }
+
+        if (!$controller) {
             return $this->dispatchToError(404, 'Controller Global Variable is not exists');
-        if(!$action)
+        }
+
+        if (!$action) {
             return $this->dispatchToError(404, 'Action Global Variable is not exists');
+        }
 
         $this->loadModule($module, $controller, $action);
     }
@@ -76,9 +84,12 @@ class Dispatcher
      * @param $message
      * @return mixed
      */
-    public function dispatchToError($code, $message){
-        if(Safan::handler()->getDebugMode())
+    public function dispatchToError(string $code, string $message)
+    {
+        if (Safan::handler()->getDebugMode()) {
             Safan::handler()->getObjectManager()->get('flashMessenger')->set('error', $message);
+        }
+
         Safan::handler()->getObjectManager()->get('router')->checkUri('/' . $code);
 
         $this->loadModule(Get::str('module'), Get::str('controller'), Get::str('action'));
@@ -88,54 +99,61 @@ class Dispatcher
     /**
      * Load module
      *
-     * @param $module
-     * @param $controller
-     * @param $action
+     * @param string $module
+     * @param string $controller
+     * @param string $action
      * @param array $params
      * @return mixed
      */
-    public function loadModule($module, $controller, $action, $params = array()){
+    public function loadModule(string $module, string $controller, string $action, array $params = [])
+    {
         // get all modules
         $modules = Safan::handler()->getModules();
 
-        if(isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])){
+        if (isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])) {
             $nameSpace = '\\' . $module;
             $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[$module];
-        }
-        elseif(isset($modules[ucfirst(strtolower($module))]) && is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])){ // check case sensitivity
+        } elseif (isset($modules[ucfirst(strtolower($module))]) &&
+                  is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])
+        ) { // check case sensitivity
             $nameSpace = '\\' . ucfirst(strtolower($module));
             $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
-        }
-        else
+        } else {
             return $this->dispatchToError(404, $module . ' module or path are not exist');
+        }
 
         // Controller Class Name
-        $moduleController = ucfirst(strtolower($controller)) . 'Controller';
-        $controllerFile = $modulePath . DS . 'Controllers' . DS . $moduleController . '.php';
+        $moduleController        = ucfirst(strtolower($controller)) . 'Controller';
+        $controllerFile          = $modulePath . DS . 'Controllers' . DS . $moduleController . '.php';
         $this->currentController = $controller;
 
-        if(!file_exists($controllerFile))
+        if (!file_exists($controllerFile)) {
             return $this->dispatchToError(404, $modulePath . DS . 'Controllers' . DS . $moduleController . ' controller file is not exist');
+        }
 
         // controller class
         $controllerClass = $nameSpace . '\\Controllers\\' . $moduleController;
 
         // Check for widgets
-        if(!class_exists($controllerClass))
+        if (!class_exists($controllerClass)) {
             include $controllerFile;
+        }
 
-        if(!class_exists($controllerClass))
+        if (!class_exists($controllerClass)) {
             return $this->dispatchToError(404, $controllerClass .' Controller Class is not exists');
+        }
 
         $moduleControllerObject = new $controllerClass;
-        $actionMethod = strtolower($action) . 'Action';
+        $actionMethod           = strtolower($action) . 'Action';
 
-        if(!method_exists($moduleControllerObject, $actionMethod))
+        if (!method_exists($moduleControllerObject, $actionMethod)) {
             return $this->dispatchToError(404, $actionMethod . ' Action Method is not exists in Controller Class');
+        }
 
-        if(!empty($params))
+        if (!empty($params)) {
             return $moduleControllerObject->$actionMethod($params);
-        else
-            return $moduleControllerObject->$actionMethod();
+        }
+        
+        return $moduleControllerObject->$actionMethod();
     }
 }

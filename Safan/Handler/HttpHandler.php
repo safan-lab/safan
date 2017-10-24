@@ -8,7 +8,6 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Safan\Handler;
 
 use Safan\CacheManager\MemcacheManager;
@@ -26,10 +25,10 @@ use Safan\Request\Request;
 use Safan\Router\Router;
 use Safan\WidgetManager\WidgetManager;
 
-class HttpHandler extends Handler
+class HttpHandler extends BaseHandler
 {
     /**
-     * Object Manager instance
+     * @var ObjectManager
      */
     private $objectManager;
 
@@ -41,7 +40,7 @@ class HttpHandler extends Handler
     /**
      * @var array
      */
-    private $config = array();
+    private $config = [];
 
     /**
      * @var string
@@ -56,42 +55,49 @@ class HttpHandler extends Handler
     /**
      * @return array
      */
-    public function getModules(){
+    public function getModules(): array
+    {
        return $this->modules;
+    }
+
+    /**
+     * @param string $namespace
+     * @param string $path
+     */
+    public function addModule(string $namespace, string $path)
+    {
+        $this->modules[$namespace] = $path;
+    }
+
+    /**
+     * @return ObjectManager
+     */
+    public function getObjectManager(): ObjectManager
+    {
+        return $this->objectManager;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getDebugMode(): bool
+    {
+        return $this->debugMode;
     }
 
     /**
      * @return array
      */
-    public function addModule($namespace, $path){
-        $this->modules[$namespace] = $path;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getObjectManager(){
-        return $this->objectManager;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDebugMode(){
-        return $this->debugMode;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getConfig(){
+    public function getConfig(): array
+    {
         return $this->config;
     }
 
     /**
      * @return string
      */
-    public function getProtocol() {
+    public function getProtocol(): string
+    {
         return $this->protocol;
     }
 
@@ -101,8 +107,9 @@ class HttpHandler extends Handler
      * @param bool $url
      * @param bool $initProtocol
      */
-    private function setBaseUrl($url = false, $initProtocol = false){
-        if(isset($_SERVER['HTTP_HOST'])){
+    private function setBaseUrl($url = false, $initProtocol = false)
+    {
+        if (isset($_SERVER['HTTP_HOST'])) {
             $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 
             if ($initProtocol)
@@ -123,25 +130,30 @@ class HttpHandler extends Handler
      * @throws \Safan\GlobalExceptions\ParamsNotFoundException
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    public function runApplication(){
+    public function runApplication()
+    {
         /****************** Config files ************************/
         $localConfigFile = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'local.config.php';
         $mainConfigFile  = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'main.config.php';
 
-        if(!file_exists($mainConfigFile))
+        if (!file_exists($mainConfigFile)) {
             throw new FileNotFoundException('Main Config file "'. $mainConfigFile .'" not found');
+        }
 
-        if(file_exists($localConfigFile))
+        if (file_exists($localConfigFile)) {
             $config = include $localConfigFile;
-        else
+        } else {
             $config = include $mainConfigFile;
+        }
 
         $this->config = $config;
+
         /****************** Set Debug mode *******************/
-        if(isset($config['debug']) && $config['debug'] === true)
+        if (isset($config['debug']) && $config['debug'] === true) {
             $this->debugMode = true;
-        else
+        } else {
             $this->debugMode = false;
+        }
 
         $this->setDebugMode();
 
@@ -149,13 +161,15 @@ class HttpHandler extends Handler
         $this->objectManager = $om = new ObjectManager();
 
         /******************* Event listener ***************/
-        if(!isset($config['events']))
+        if (!isset($config['events'])) {
             $config['events'] = array();
+        }
+
         $eventListener = new EventListener($config['events']);
         $om->setObject('eventListener', $eventListener);
 
         /******************* Memcache ***************/
-        if(isset($config['memcache']) && $config['memcache']){
+        if (isset($config['memcache']) && $config['memcache']) {
             $memcache = new MemcacheManager();
             $om->setObject('memcache', $memcache);
         }
@@ -169,13 +183,13 @@ class HttpHandler extends Handler
         $om->setObject('router', $router);
 
         /******************* Request object ************/
-        if(!defined('INTERFACE_TYPE')){
+        if (!defined('INTERFACE_TYPE')) {
             $request = new Request();
             $om->setObject('request', $request);
         }
 
         /******************* Session Object ***************/
-        if(!defined('INTERFACE_TYPE')){
+        if (!defined('INTERFACE_TYPE')) {
             $session = new Session();
             $session->start();
             $om->setObject('session', $session);
@@ -190,7 +204,7 @@ class HttpHandler extends Handler
         $om->setObject('logger', $logger);
 
         /******************* FlashMessenger Object ********/
-        if(!defined('INTERFACE_TYPE')){
+        if (!defined('INTERFACE_TYPE')) {
             $flashMessenger = new FlashMessenger();
             $om->setObject('flashMessenger', $flashMessenger);
         }
@@ -205,13 +219,16 @@ class HttpHandler extends Handler
 
         /******************* Set Base url *********************/
         $initProtocol = false;
-        if (isset($config['protocol']))
-            $initProtocol = $config['protocol'];
 
-        if (isset($config['base_url']))
+        if (isset($config['protocol'])) {
+            $initProtocol = $config['protocol'];
+        }
+
+        if (isset($config['base_url'])) {
             $this->setBaseUrl($config['base_url'], $initProtocol);
-        else
+        } else {
             $this->setBaseUrl(null, $initProtocol);
+        }
 
         unset($config);
         unset($om);
@@ -224,44 +241,52 @@ class HttpHandler extends Handler
      * @throws \Safan\GlobalExceptions\ParamsNotFoundException
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    protected function initLibraries(){
-        if(empty($this->config['init']))
+    protected function initLibraries()
+    {
+        if (empty($this->config['init'])) {
             return false;
+        }
 
-        foreach($this->config['init'] as $lib){
-            if(!isset($lib['class']) || !isset($lib['method']))
+        foreach ($this->config['init'] as $lib) {
+            if (!isset($lib['class']) || !isset($lib['method'])) {
                 throw new ParamsNotFoundException('Initialization library is not correct');
-
-            if(class_exists($lib['class']))
-                $dataMapper = new $lib['class'];
-            else
-                throw new FileNotFoundException($lib['class']);
-
-            if(method_exists($dataMapper, $lib['method'])){
-                if(isset($lib['params']))
-                    $dataMapper->{$lib['method']}($lib['params']);
-                else
-                    $dataMapper->{$lib['method']}();
             }
-            else
+
+            if (class_exists($lib['class'])) {
+                $dataMapper = new $lib['class'];
+            } else {
+                throw new FileNotFoundException($lib['class']);
+            }
+
+            if (method_exists($dataMapper, $lib['method'])) {
+                if (isset($lib['params'])) {
+                    $dataMapper->{$lib['method']}($lib['params']);
+                } else {
+                    $dataMapper->{$lib['method']}();
+                }
+            } else {
                 throw new ParamsNotFoundException($lib['method']);
+            }
         }
     }
 
     /**
      * Set Debug Mode
      */
-    private function setDebugMode(){
-        if($this->debugMode)
+    private function setDebugMode()
+    {
+        if ($this->debugMode) {
             error_reporting(E_ALL);
-        else
+        } else {
             error_reporting(0);
+        }
     }
 
     /**
      * @return mixed|void
      */
-    protected function handlingProcess(){
+    protected function handlingProcess()
+    {
         $this->objectManager->get('eventListener')->runEvent('preCheckRoute');
         $this->objectManager->get('router')->checkHttpRoutes();
         $this->objectManager->get('eventListener')->runEvent('postCheckRoute');

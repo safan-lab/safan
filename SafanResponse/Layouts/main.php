@@ -9,7 +9,7 @@
 <body>
 <div id="page">
     <?= $flashMessenger->get('error'); ?>
-    <?= $this->getContent() ?>
+    <?= $this->content ?>
 </div>
 </body>
 </html>

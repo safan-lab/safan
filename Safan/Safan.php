@@ -10,22 +10,24 @@
  */
 namespace Safan;
 
+use Safan\Handler\BaseHandler;
+
+define('SAFAN_FRAMEWORK_PATH', dirname(__FILE__));
+
 class Safan
 {
     /**
-     * Handler instance
-     *
-     * @var
+     * @var BaseHandler
      */
     private static $_handler;
 
     /**
-     * Create Handler
+     * Create Handler.
      *
-     * @param $class
-     * @return mixed
+     * @param string $class
+     * @return BaseHandler
      */
-    public static function createHandler($class)
+    public static function createHandler(string $class)
     {
         return self::createHttpHandler($class);
     }
@@ -33,29 +35,28 @@ class Safan
     /**
      * Call Http Handler
      *
-     * @param $class
-     * @return mixed
+     * @param string $class
+     * @return BaseHandler
      */
-    public static function createHttpHandler($class)
+    public static function createHttpHandler(string $class): BaseHandler
     {
         return new $class;
     }
 
     /**
-     * Returns the handler singleton, null if the singleton has not been created yet.
+     * Returns the handler singleton.
      *
-     * @return mixed
+     * @return BaseHandler
      */
-    public static function handler()
+    public static function handler(): BaseHandler
     {
         return self::$_handler;
     }
 
     /**
-     * @param $handler
-     * @throws GlobalExceptions\FileNotFoundException
+     * @param BaseHandler $handler
      */
-    public static function setHandler($handler)
+    public static function setHandler(BaseHandler $handler)
     {
         self::$_handler = $handler;
     }

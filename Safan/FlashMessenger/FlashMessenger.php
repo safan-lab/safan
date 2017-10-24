@@ -21,12 +21,12 @@ class FlashMessenger
     private $sessionNameSpace = 'FlashMessenger';
 
     /**
-     * @var \Safan\GlobalData\Session $sessionObject
+     * @var \Safan\GlobalData\Session
      */
     private $sessionObject;
 
     /**
-     *
+     * FlashMessenger constructor.
      */
     public function __construct()
     {
@@ -36,10 +36,10 @@ class FlashMessenger
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return bool
      */
-    public function get($key)
+    public function get(string $key)
     {
         $flashSessions = $this->sessionObject->get('FlashMessenger');
         $this->remove();
@@ -52,10 +52,10 @@ class FlashMessenger
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      */
-    public function set($key, $value)
+    public function set(string $key, $value)
     {
         $this->sessionObject->set($this->sessionNameSpace, [$key => $value]);
     }

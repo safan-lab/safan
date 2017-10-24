@@ -11,21 +11,25 @@
 
 namespace Safan\Logger;
 
-class Logger{
+class Logger
+{
     /**
      * All requirement logs for framework
+     *
+     * @var array
      */
-    private $logs = array();
+    private $logs = [];
 
     /**
      * @param $logFile
      * @param $message
      * @return bool
      */
-    public function log($logFile, $message)
+    public function log(string $logFile, string $message)
     {
-        if (!is_readable(dirname($logFile)))
+        if (!is_readable(dirname($logFile))) {
             mkdir(dirname($logFile), 0777, true);
+        }
 
         $fh = fopen($logFile, 'a');
 
@@ -34,6 +38,7 @@ class Logger{
             $message = "\n+++++----------------------------------+++++\n$date\n$message";
             fwrite($fh, $message);
             fclose($fh);
+
             return true;
         }
 
@@ -42,17 +47,27 @@ class Logger{
 
     /**
      * Get Logs
+     *
+     * @param bool $key
+     * @return array
      */
-    public function getLogs($key = false){
-        if($key)
+    public function getLogs($key = false): array
+    {
+        if ($key) {
             return isset($this->logs[$key]) ? $this->logs[$key] : false;
+        }
+
         return $this->logs;
     }
 
     /**
      * Set Log
+     *
+     * @param string $logKey
+     * @param array $logParams
      */
-    public function setLog($logKey, $logParams){
+    public function setLog(string $logKey, array $logParams = [])
+    {
         $this->logs[$logKey] = $logParams;
     }
 
@@ -60,26 +75,30 @@ class Logger{
      * check logs
      * @return boolean
      */
-    public function checkLogs(){
-        if(empty($this->logs))
+    public function checkLogs(): bool
+    {
+        if (empty($this->logs)) {
             return false;
+        }
+
         return true;
     }
 
     /**
      * Print Log
      */
-    public function printLogs(){
-        if(!$this->checkLogs()){
+    public function printLogs()
+    {
+        if (!$this->checkLogs()) {
             $color = 'green';
             $message = 'All requirements successfully installed';
-        }
-        else{
+        } else {
             $color = 'red';
             $message = '';
 
-            foreach($this->logs as $value)
+            foreach ($this->logs as $value) {
                 $message .= $value . '<br/>';
+            }
         }
 
         echo "<div class='DUMP' style='border: 2px solid #000000;

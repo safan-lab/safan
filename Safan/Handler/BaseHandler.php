@@ -8,12 +8,11 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-
 namespace Safan\Handler;
 
 use Safan\Safan;
 
-abstract class Handler
+abstract class BaseHandler
 {
     /**
      * @return mixed
@@ -28,16 +27,18 @@ abstract class Handler
     /**
      * @param null $config
      */
-    public function __construct($config=null){
+    public function __construct($config = null)
+    {
         Safan::setHandler($this);
 
         $this->runApplication();
     }
 
     /**
-     *
+     * @param array $modules
      */
-    public function run($modules){
+    public function run(array $modules)
+    {
         $this->modules = $modules;
 
         $this->handlingProcess();

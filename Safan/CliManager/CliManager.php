@@ -19,74 +19,84 @@ class CliManager
 {
     /**
      * string (example database:create)
+     *
+     * @var string
      */
     private $command;
 
     /**
      * @param $command
      */
-    public function __construct($command){
+    public function __construct($command)
+    {
         $this->command = $command;
 
         return $this->dispatchCommand();
     }
 
     /**
-     * @var $command array
+     * dispatch command
      */
-    private function dispatchCommand(){
+    private function dispatchCommand()
+    {
         Safan::handler()->getObjectManager()->get('router')->checkCliCommand($this->command);
 
-        if(Get::exists('module'))
+        if (Get::str('module', false)) {
             $module = Get::str('module');
-        else
+        } else {
             return $this->getErrorMessage('Module Global Variable is not exists');
+        }
 
-        if(Get::exists('controller'))
+        if (Get::str('controller', false)) {
             $controller = Get::str('controller');
-        else
+        } else {
             return $this->getErrorMessage('Controller Global Variable is not exists');
+        }
 
-        if(Get::exists('action'))
+        if (Get::str('action', false)) {
             $action = Get::str('action');
-        else
+        } else {
             return $this->getErrorMessage('Action Global Variable is not exists');
+        }
 
         // get all modules
         $modules = Safan::handler()->getModules();
 
-        if(isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])){
+        if (isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])) {
             $nameSpace = '\\' . $module;
             $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[$module];
-        }
-        elseif(isset($modules[ucfirst(strtolower($module))]) && is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])){ // check case sensitivity
+        } elseif (isset($modules[ucfirst(strtolower($module))]) &&
+                  is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])
+        ){ // check case sensitivity
             $nameSpace = '\\' . ucfirst(strtolower($module));
             $this->currentModulePath = $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
-        }
-        else
+        } else {
             return $this->getErrorMessage($module . ' module or path are not exist');
+        }
 
         // Controller Class Name
-        $moduleController = ucfirst(strtolower($controller)) . 'Controller';
-        $controllerFile = $modulePath . DS . 'Commands' . DS . $moduleController . '.php';
-        $this->currentController = $controller;
+        $moduleController        = ucfirst(strtolower($controller)) . 'Controller';
+        $controllerFile          = $modulePath . DS . 'Commands' . DS . $moduleController . '.php';
 
-        if(!file_exists($controllerFile))
+        if (!file_exists($controllerFile)) {
             return $this->getErrorMessage($modulePath . DS . 'Commands' . DS . $moduleController . ' controller file is not exist');
+        }
 
         include $controllerFile;
 
         // controller class
         $controllerClass = $nameSpace . '\\Commands\\' . $moduleController;
 
-        if(!class_exists($controllerClass))
+        if (!class_exists($controllerClass)) {
             return $this->getErrorMessage($controllerClass .' Controller Class is not exist');
+        }
 
         $moduleControllerObject = new $controllerClass;
-        $actionMethod = strtolower($action) . 'Action';
+        $actionMethod           = strtolower($action) . 'Action';
 
-        if(!method_exists($moduleControllerObject, $actionMethod))
+        if (!method_exists($moduleControllerObject, $actionMethod)) {
             return $this->getErrorMessage($actionMethod . ' Action Method is not exist in Controller Class');
+        }
 
         return $moduleControllerObject->$actionMethod();
     }
@@ -95,8 +105,10 @@ class CliManager
      * Get Message
      *
      * @color green
+     * @param string $message
      */
-    public static function getMessage($message){
+    public static function getMessage(string $message)
+    {
         echo self::setTextColor($message, 'green') . "\n\r";
     }
 
@@ -104,8 +116,10 @@ class CliManager
      * Get Error
      *
      * @color red
+     * @param string $message
      */
-    public static function getErrorMessage($message){
+    public static function getErrorMessage(string $message)
+    {
         echo self::setTextColor($message, 'red') . "\n\r";
         exit;
     }
@@ -113,11 +127,12 @@ class CliManager
     /**
      * Set Color and return string
      *
-     * @param $color
-     * @param $str
+     * @param string $str
+     * @param string $color
      * @return string
      */
-    public static function setTextColor($str, $color){
+    public static function setTextColor(string $str, string $color)
+    {
         switch ($color) {
             case 'red' :
                 $color = "\e[0;31m";

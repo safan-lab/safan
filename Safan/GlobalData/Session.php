@@ -24,16 +24,18 @@ class Session
     private $sessionStarted = false;
 
     /**
-     *
+     * Session constructor.
      */
-    public function __construct(){
+    public function __construct()
+    {
         $this->sessionKey = 'MpSessionKey_' . str_replace('.', '_', $_SERVER['HTTP_HOST']);
     }
 
     /**
-     *
+     * start session
      */
-    public function start(){
+    public function start()
+    {
         if (!$this->sessionStarted) {
             $this->sessionStarted = true;
             session_start();
@@ -41,40 +43,49 @@ class Session
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @param $value
      * @return bool
      */
-    public function set($name, $value){
-        if ($this->sessionStarted){
+    public function set(string $name, $value)
+    {
+        if ($this->sessionStarted) {
             $_SESSION[$name] = $value;
+
             return true;
         }
+
         return false;
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return bool
      */
-    public function get($name){
-        if(isset($_SESSION[$name]))
+    public function get(string $name)
+    {
+        if (isset($_SESSION[$name])) {
             return $_SESSION[$name];
+        }
+
         return false;
     }
 
     /**
-     * @param $name
+     * @param string $name
      */
-    public function remove($name){
-        if(isset($_SESSION[$name]))
+    public function remove(string $name)
+    {
+        if (isset($_SESSION[$name])) {
             unset($_SESSION[$name]);
+        }
     }
 
     /**
-     *
+     * End session
      */
-    public function endSession(){
+    public function endSession()
+    {
         $this->sessionStarted = false;
         session_unset();
         session_destroy();

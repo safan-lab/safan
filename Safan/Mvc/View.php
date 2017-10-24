@@ -18,15 +18,22 @@ class View
 {
     /**
      * Page Title
+     *
+     * @var string
      */
     public $pageTitle = '';
 
     /**
      * Meta keywords for page
+     *
+     * @var string
      */
     public $keywords = '';
+
     /**
      * Description for page
+     *
+     * @var string
      */
     public $description = '';
 
@@ -65,9 +72,10 @@ class View
     private $metaTags = [];
 
     /**
-     * @param $layoutFile
+     * @param string $layoutFile
      */
-    public function setLayoutFile($layoutFile){
+    public function setLayoutFile(string $layoutFile)
+    {
         $this->layoutFile = $layoutFile;
     }
 
@@ -78,32 +86,37 @@ class View
      * @return string
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    private function getLayoutFile(){
-        if(empty($this->layoutFile))
+    private function getLayoutFile()
+    {
+        if (empty($this->layoutFile)) {
             $this->layoutFile = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath() . DS . 'Layouts' . DS . 'main.php';
+        }
 
-        if(!file_exists($this->layoutFile)){
+        if (!file_exists($this->layoutFile)) {
             // set main layout from SafanResponse Module
             $this->layoutFile = SAFAN_FRAMEWORK_PATH . DS . '..' . DS . 'SafanResponse' . DS . 'Layouts' . DS . 'main.php';
 
-            if(!file_exists($this->layoutFile))
+            if (!file_exists($this->layoutFile)) {
                 throw new FileNotFoundException('Safan response path is not defined');
+            }
         }
 
         return $this->layoutFile;
     }
 
     /**
-     * @param $viewFile
+     * @param string $viewFile
      */
-    public function setViewFile($viewFile){
+    public function setViewFile(string $viewFile)
+    {
         $this->viewFile = $viewFile;
     }
 
     /**
      * @param $vars
      */
-    public function loadViewFile($vars){
+    public function loadViewFile(array $vars = [])
+    {
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
         $vars['logger']         = Safan::handler()->getObjectManager()->get('logger');
         $vars['flashMessenger'] = Safan::handler()->getObjectManager()->get('flashMessenger');
@@ -119,15 +132,17 @@ class View
     /**
      * @return string
      */
-    public function getContentFromOutput(){
+    public function getContentFromOutput()
+    {
         return $this->content;
     }
 
     /**
-     * @param $widgetFile
-     * @param $vars
+     * @param string $widgetFile
+     * @param array $vars
      */
-    public function loadWidgetFile($widgetFile, $vars){
+    public function loadWidgetFile(string $widgetFile, array $vars = [])
+    {
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
         $vars['logger']         = Safan::handler()->getObjectManager()->get('logger');
         $vars['flashMessenger'] = Safan::handler()->getObjectManager()->get('flashMessenger');
@@ -138,9 +153,10 @@ class View
     }
 
     /**
-     * @param $vars
+     * @param array $vars
      */
-    public function loadLayoutFile($vars){
+    public function loadLayoutFile(array $vars = [])
+    {
         $layoutFile = $this->getLayoutFile();
 
         $vars['widgetManager']  = Safan::handler()->getObjectManager()->get('widget');
@@ -158,12 +174,14 @@ class View
      *
      * @return string
      */
-    public function getMetaTags(){
+    public function getMetaTags()
+    {
         $metaTags = '';
 
-        if(!empty($this->metaTags)){
-            foreach($this->metaTags as $meta)
+        if (!empty($this->metaTags)) {
+            foreach ($this->metaTags as $meta) {
                 $metaTags .= '<meta property="'. $meta["property"] .'" content="'. $meta["content"] .'" />';
+            }
         }
 
         return $metaTags;
@@ -174,14 +192,16 @@ class View
      *
      * @param $style
      */
-    public function addStyle($style){
+    public function addStyle(string $style)
+    {
         $this->styles[] = $style;
     }
 
     /**
      * @return array
      */
-    public function getStyles(){
+    public function getStyles()
+    {
         return $this->styles;
     }
 
@@ -190,14 +210,16 @@ class View
      *
      * @param $script
      */
-    public function addScript($script){
+    public function addScript(string $script)
+    {
         $this->scripts[] = $script;
     }
 
     /**
      * @return array
      */
-    public function getScripts(){
+    public function getScripts()
+    {
         return $this->scripts;
     }
 }

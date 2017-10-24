@@ -19,40 +19,44 @@ class MemcacheManager
     private $memcache;
 
     /**
-     *
+     * MemcacheManager constructor.
      */
-    public function __construct(){
+    public function __construct()
+    {
         $this->memcache = new \Memcache;
         $this->memcache->connect('localhost', 11211) or die ("Could not connect");
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @return array|bool|string
      */
-    public function get($key){
+    public function get(string $key)
+    {
         return ($this->memcache) ? $this->memcache->get($key) : false;
     }
 
     /**
      * Set Memcache
      *
-     * @param $key
+     * @param string $key
      * @param $object
      * @param int $timeout
      * @return bool
      */
-    public function set($key, $object, $timeout = 60){
+    public function set(string $key, $object, $timeout = 60)
+    {
         return ($this->memcache) ? $this->memcache->set($key, $object, MEMCACHE_COMPRESSED, $timeout) : false;
     }
 
     /**
      * Remove Memcache key
      *
-     * @param $key
+     * @param string $key
      * @return bool
      */
-    public function remove($key){
+    public function remove(string $key)
+    {
         return ($this->memcache) ? $this->memcache->delete($key) : false;
     }
 }

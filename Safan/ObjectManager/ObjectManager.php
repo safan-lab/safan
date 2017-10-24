@@ -18,28 +18,30 @@ class ObjectManager
     /**
      * @var array
      */
-    public $registry = array();
+    public $registry = [];
 
     /**
      * @var array
      */
-    private $initializers = array();
+    private $initializers = [];
 
     /**
      * @var array
      */
-    private $shareds = array();
+    private $shareds = [];
 
     /**
      * @param $name
      * @return mixed
      * @throws \Safan\GlobalExceptions\ObjectDoesntExistsException
      */
-    public function get($name)
+    public function get(string $name)
 	{
-		if (!isset($this->shareds[$name]))
+		if (!isset($this->shareds[$name])) {
 			throw new ObjectDoesntExistsException(
-					sprintf('Object %s doesn\'t exists in the object manager registry', $name));
+					sprintf('Object %s doesn\'t exists in the object manager registry', $name)
+			);
+		}
 	
 		if ($this->shareds[$name] && isset($this->registry[$name])) {
 			return $this->registry[$name];
@@ -51,7 +53,8 @@ class ObjectManager
 		}
 			
 		throw new ObjectDoesntExistsException(
-				sprintf('Object %s doesn\'t exists in object manager registry', $name));
+				sprintf('Object %s doesn\'t exists in object manager registry', $name)
+		);
 	}
 
     /**
@@ -59,12 +62,13 @@ class ObjectManager
      * @return mixed
      * @throws \Safan\GlobalExceptions\ObjectDoesntExistsException
      */
-    public function getInstance($fullName)
+    public function getInstance(string $fullName)
     {
-        if (isset($this->shareds[$fullName]) && isset($this->registry[$fullName]))
+        if (isset($this->shareds[$fullName]) && isset($this->registry[$fullName])) {
             return $this->registry[$fullName];
+		}
 
-        if(class_exists($fullName)){
+        if (class_exists($fullName)) {
             $object = new $fullName;
             $this->setObject($fullName, $object);
 
@@ -72,7 +76,8 @@ class ObjectManager
         }
 
         throw new ObjectDoesntExistsException(
-            sprintf('Object %s doesn\'t exists in object manager registry', $name));
+            sprintf('Object %s doesn\'t exists in object manager registry', $fullName)
+		);
     }
 
     /**

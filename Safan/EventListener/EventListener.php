@@ -21,31 +21,33 @@ class EventListener
     /**
      * @var array
      */
-    private $events = array();
+    private $events = [];
 
     /**
-     *
+     * EventListener constructor.
+     * @param array $events
      */
-    public function __construct($events = array()){
+    public function __construct(array $events = [])
+    {
         $this->events = $events;
     }
 
     /**
-     * @param $eventKey
+     * @param string $eventKey
      * @return bool
-     * @throws \Safan\GlobalExceptions\ObjectDoesntExistsException
-     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
-     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    public function runEvent($eventKey){
-        if(!isset($this->events[$eventKey]))
+    public function runEvent(string $eventKey)
+    {
+        if (!isset($this->events[$eventKey])) {
             return false;
+        }
 
         $eventStr = $this->events[$eventKey];
-        $event = explode(':', $eventStr);
+        $event    = explode(':', $eventStr);
 
-        if(sizeof($event) != 2)
+        if (sizeof($event) != 2) {
             throw new ParamsNotFoundException('Event params is not correct - ' . $eventStr);
+        }
 
         $moduleName = $event[0];
         $eventClass = $event[1];
@@ -54,29 +56,34 @@ class EventListener
         $allModules = Safan::handler()->getModules();
 
         // check Module
-        if(!isset($allModules[$moduleName]))
+        if (!isset($allModules[$moduleName])) {
             throw new FileNotFoundException($event[0] . ' Module is not defined');
+        }
 
-        $eventFile = $allModules[$moduleName] . DS . 'Events' . DS . $eventClass . '.php';
+        $eventFile  = $allModules[$moduleName] . DS . 'Events' . DS . $eventClass . '.php';
         $eventClass = $moduleName . '\\Events\\' . $eventClass;
 
         // check Event file
-        if(!file_exists($eventFile))
+        if (!file_exists($eventFile)) {
             throw new FileNotFoundException($eventFile . ' event file is not exist');
+        }
 
         // check event class for double call
-        if(!class_exists($eventClass))
+        if (!class_exists($eventClass)) {
             include $eventFile;
+        }
 
         // check event class
-        if(!class_exists($eventClass))
+        if (!class_exists($eventClass)) {
             throw new ObjectDoesntExistsException($eventClass . ' is not defined');
+        }
 
         $eventObj = new $eventClass;
 
         // check init method
-        if(!method_exists($eventObj, 'init'))
+        if (!method_exists($eventObj, 'init')) {
             throw new ObjectDoesntExistsException($eventClass . ' have not method init()');
+        }
 
         return $eventObj->init();
     }

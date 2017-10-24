@@ -20,12 +20,12 @@ class WidgetManager
     /**
      * @var array
      */
-    private $config = array();
+    private $config = [];
 
     /**
      * @var array
      */
-    public $params = array();
+    public $params = [];
 
     /**
      * @var array
@@ -40,32 +40,33 @@ class WidgetManager
     /**
      * Get config widgets list
      */
-    public function __construct(){
-        // config file path
+    public function __construct()
+    {
         $configFile = APP_BASE_PATH . DS . 'application' . DS . 'Settings' . DS . 'widgets.config.php';
 
-        if(!file_exists($configFile))
+        if (!file_exists($configFile)) {
             throw new FileNotFoundException('Widgets config file is not exist');
+        }
 
         $this->config = include($configFile);
     }
 
     /**
-     * @param $widgetName
+     * @param string $widgetName
      * @param array $params
-     * @throws \Safan\GlobalExceptions\ParamsNotFoundException
-     * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    public function begin($widgetName, $params = array()){
-		if(!isset($this->config[$widgetName]))
+    public function begin(string $widgetName, array $params = [])
+    {
+		if (!isset($this->config[$widgetName])) {
             throw new FileNotFoundException($widgetName . ' Widget is not exist');
+        }
 
         $widget = $this->config[$widgetName];
 
-        if(!isset($widget['module']) || !isset($widget['controller']) || !isset($widget['action']))
+        if (!isset($widget['module']) || !isset($widget['controller']) || !isset($widget['action'])) {
             throw new ParamsNotFoundException($widgetName . ' Params is not exist');
+        }
 
-        // load widget
         $this->loadWidget($widgetName, $widget['module'], $widget['controller'], $widget['action'], $params);
 	}
 
@@ -78,43 +79,49 @@ class WidgetManager
      * @return mixed
      * @throws \Safan\GlobalExceptions\ParamsNotFoundException
      */
-    public function loadWidget($widgetName, $module, $controller, $action, $params = array()){
+    public function loadWidget(string $widgetName, string $module, string $controller, string $action, array $params = [])
+    {
         // get all modules
         $modules = Safan::handler()->getModules();
 
-        if(isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])){
+        if (isset($modules[$module]) && is_dir(APP_BASE_PATH . DS . $modules[$module])) {
             $nameSpace  = '\\' . $module;
             $modulePath = APP_BASE_PATH . DS . $modules[$module];
-        }
-        elseif(isset($modules[ucfirst(strtolower($module))]) && is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])){ // check case sensitivity
+        } elseif (isset($modules[ucfirst(strtolower($module))]) &&
+                 is_dir(APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))])
+        ) { // check case sensitivity
             $nameSpace  = '\\' . ucfirst(strtolower($module));
             $modulePath = APP_BASE_PATH . DS . $modules[ucfirst(strtolower($module))];
-        }
-        else
+        } else {
             throw new ParamsNotFoundException('Widget ' . $module . ' module or path are not exist');
+        }
 
         // Controller Class Name
         $moduleController = ucfirst(strtolower($controller)) . 'Controller';
         $controllerFile   = $modulePath . DS . 'Controllers' . DS . $moduleController . '.php';
 
-        if(!file_exists($controllerFile))
+        if (!file_exists($controllerFile)) {
             throw new ParamsNotFoundException('Widget ' . $modulePath . DS . 'Controllers' . DS . $moduleController . ' controller file is not exist');
+        }
 
         // controller class
         $controllerClass = $nameSpace . '\\Controllers\\' . $moduleController;
 
         // Check for widgets
-        if(!class_exists($controllerClass))
+        if (!class_exists($controllerClass)) {
             include $controllerFile;
+        }
 
-        if(!class_exists($controllerClass))
+        if (!class_exists($controllerClass)) {
             throw new ParamsNotFoundException('Widget ' . $controllerClass .' Controller Class is not exists');
+        }
 
         $moduleControllerObject = new $controllerClass;
         $actionMethod           = $action;
 
-        if(!method_exists($moduleControllerObject, $actionMethod))
+        if (!method_exists($moduleControllerObject, $actionMethod)) {
             throw new ParamsNotFoundException('Widget ' . $actionMethod . ' Action Method is not exists in Controller Class');
+        }
 
         // save current widget data
         $this->currentWidgetRouting = [
@@ -134,21 +141,25 @@ class WidgetManager
     /**
      * @return array
      */
-    public function getLoadedWidgetsData(){
+    public function getLoadedWidgetsData()
+    {
         return $this->loadedWidgetsData;
     }
 
     /**
      * @return array
      */
-    public function getCurrentWidgetRouting(){
+    public function getCurrentWidgetRouting()
+    {
         return $this->currentWidgetRouting;
     }
 
     /**
-     * Add widget
+     * @param $name
+     * @param $params
      */
-    public function addWidget($name, $params){
+    public function addWidget(string $name, array $params = [])
+    {
         $this->config[$name] = $params;
     }
 }

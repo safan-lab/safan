@@ -19,72 +19,87 @@ class Controller
 {
     /**
      * Page Title
+     *
+     * @var string
      */
     public $pageTitle = 'Safan Framework';
 
     /**
      * Meta keywords for page
+     *
+     * @var string
      */
     public $keywords = 'PHP, framework, application for all needs';
+
     /**
      * Description for page
+     *
+     * @var string
      */
     public $description = 'Safan - Simple application or all needs';
 
     /**
      * Vars for extract
+     *
+     * @var array
      */
     private $vars = [];
 
     /**
      * Assign Vars
      *
-     * @param $key
+     * @param string $key
      * @param $value
      */
-    public function assign($key, $value){
+    public function assign(string $key, $value)
+    {
         $this->vars[$key] = $value;
     }
 
     /**
-     * @param  $layout
+     * @param  string $layout
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    protected function setLayout($layout){
+    protected function setLayout(string $layout)
+    {
         $layoutPaths = explode(':', $layout);
 
-        if(sizeof($layoutPaths) !== 2)
+        if (sizeof($layoutPaths) !== 2) {
             throw new FileNotFoundException('Layout is not correct');
+        }
 
         $moduleName     = $layoutPaths[0];
         $layoutFileName = $layoutPaths[1];
 
         $modules = Safan::handler()->getModules();
 
-        if(!isset($modules[$moduleName]))
+        if (!isset($modules[$moduleName])) {
             throw new FileNotFoundException('Layout module is not define');
+        }
 
         $layoutFile = APP_BASE_PATH . DS . $modules[$moduleName] . DS . 'Layouts' . DS . $layoutFileName . '.php';
 
-        if(!file_exists($layoutFile))
+        if (!file_exists($layoutFile)) {
             throw new FileNotFoundException('Layout '. $layoutFile .' is not exist');
+        }
 
         Safan::handler()->getObjectManager()->get('view')->setLayoutFile($layoutFile);
     }
 
-
     /**
-     * @param $view
+     * @param string $view
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    protected function render($view){
+    protected function render(string $view)
+    {
         // generate view file
         $modulePath     = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
         $controllerName = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentController();
         $viewFile       = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($controllerName) . DS . $view . '.php';
 
-        if(!file_exists($viewFile))
+        if (!file_exists($viewFile)) {
             throw new FileNotFoundException($viewFile . ' View file not found');
+        }
 
         // set data
         Safan::handler()->getObjectManager()->get('view')->pageTitle   = $this->pageTitle;
@@ -97,17 +112,19 @@ class Controller
     }
 
     /**
-     * @param $view
+     * @param string $view
      * @return mixed
      * @throws \Safan\GlobalExceptions\FileNotFoundException
      */
-    protected function renderPartial($view){
+    protected function renderPartial(string $view)
+    {
         $modulePath     = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentModulePath();
         $controllerName = Safan::handler()->getObjectManager()->get('dispatcher')->getCurrentController();
         $view           = $modulePath . DS . 'Resources' . DS . 'view' . DS . strtolower($controllerName) . DS . $view . '.php';
 
-        if(!file_exists($view))
+        if (!file_exists($view)) {
             throw new FileNotFoundException($view . ' View file not found');
+        }
 
         return Safan::handler()->getObjectManager()->get('view')->loadWidgetFile($view, $this->vars);
     }
@@ -130,8 +147,11 @@ class Controller
 
     /**
      * Render Json Content
+     *
+     * @param array $params
      */
-    public function renderJson($params = array()){
+    public function renderJson(array $params = [])
+    {
         echo json_encode($params);
         return;
     }
@@ -142,16 +162,19 @@ class Controller
      * @param string $url
      * @param bool $globalUrl
      */
-    public function redirect($url = '', $globalUrl = false){
-        if($globalUrl){
+    public function redirect(string $url = '', bool $globalUrl = false)
+    {
+        if ($globalUrl) {
             header('location: ' . $url);
             exit;
         }
 
-        if(!$url)
+        if (!$url) {
             header('location: ' . Safan::handler()->baseUrl);
-        else
+        } else {
             header('location: ' . Safan::handler()->baseUrl . $url);
+        }
+
         exit;
     }
 }
